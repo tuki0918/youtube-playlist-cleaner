@@ -3,7 +3,11 @@
   "name": "YouTube Playlist Cleaner",
   "version": "0.1",
   "description": "Cleaning up the playlist on YouTube",
+  "permissions": ["activeTab"],
   "action": {
     "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
   }
 }
