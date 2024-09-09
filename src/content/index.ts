@@ -1,41 +1,54 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+type Prams = {
+    tabId: number;
+};
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+chrome.runtime.onMessage.addListener(async (request) => {
     if (request.action === 'execute') {
-        main({ tabId: request.tabId });
+        await main({ tabId: request.tabId });
     }
 });
 
-function main(prams) {
-    chrome.runtime.sendMessage({ action: 'execute_start' });
-    execute(prams);
-    // chrome.runtime.sendMessage({ action: 'execute_finished' });
+async function main(prams: Prams) {
+    try {
+        await chrome.runtime.sendMessage({ action: 'execute_start' });
+        await execute(prams);
+        await chrome.runtime.sendMessage({ action: 'execute_finished' });   
+    } catch (error) {
+        // TODO: notification
+        console.error(error);
+        await chrome.runtime.sendMessage({ action: 'execute_error' });
+    }
 }
 
-function execute(prams) {
-    showPlaylistItemMenu(prams);
+async function execute(prams: Prams) {
+    await showPlaylistItemMenu(prams);
 }
 
-function isDisplayNone(element) {
+function isDisplayNone(element: Element) {
     return window.getComputedStyle(element).display === 'none';
 }
 
-function waitForNextExecute(prams) {
+async function waitForNextExecute(prams: Prams) {
     const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
     const container = document.querySelector(dropdownContainerXPath)
     if (container) {
         if (isDisplayNone(container)) {
             // next execute
-            setTimeout(() => execute(prams), 1000 * 10);
+            await sleep(1000 * 5);
+            await execute(prams);
         } else {
             // wait for the menu to be closed
-            setTimeout(() => waitForNextExecute(prams), 1000);
+            await sleep(1000);
+            await waitForNextExecute(prams);
         }
     } else {
-        console.log('Not supported');
-        chrome.runtime.sendMessage({ action: 'execute_error' });
+        throw new Error('Not supported.');
     }
 }
 
-function removePlaylistItem(prams) {
+async function removePlaylistItem(prams: Prams) {
     const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
     const container = document.querySelector(dropdownContainerXPath)
     const isDisplay = container && !isDisplayNone(container)
@@ -58,41 +71,36 @@ function removePlaylistItem(prams) {
          */
 
         if (menuItems.length > 2) {
-            const menuItem = menuItems[2];
-            const text = menuItem.textContent
+            const menuItem = menuItems[2] as HTMLElement;
+            const text = menuItem.textContent || '';
             if (text.includes("[後で見る]から削除")) {
                 menuItem.click(); // [後で見る]から削除 menu
-                waitForNextExecute(prams);
+                await waitForNextExecute(prams);
             } else {
-                console.log('No [後で見る]から削除 menu found.');
-                chrome.runtime.sendMessage({ action: 'execute_error' });
+                throw new Error('No [後で見る]から削除 menu found.');
             }
         } else {
-            console.log('No menu items found.');
-            chrome.runtime.sendMessage({ action: 'execute_error' });
+            throw new Error('No menu items found.');
         }
     } else {
-        console.log('No dropdown menu found.');
-        chrome.runtime.sendMessage({ action: 'execute_error' });
+        throw new Error('No dropdown menu found.');
     }
 }
 
-function showPlaylistItemMenu(prams) {
+async function showPlaylistItemMenu(prams: Prams) {
     const playlistWrapSectionXPath = "div#contents.ytd-item-section-renderer";
     const section = document.querySelector(playlistWrapSectionXPath);
     if (section) {
         const playlistMenuXPath = "yt-icon-button#button.dropdown-trigger.ytd-menu-renderer";
-        const menu = section.querySelector(playlistMenuXPath);
+        const menu = section.querySelector(playlistMenuXPath) as HTMLElement;
         if (menu) {
             menu.click(); // [...] button
-            setTimeout(() => removePlaylistItem(prams), 1000);
+            await sleep(1000);
+            await removePlaylistItem(prams);
         } else {
-            // TODO: move to main method
             console.log('No playlist items found.');
-            chrome.runtime.sendMessage({ action: 'execute_finished' });
         }
     } else {
-      console.log('No playlist area found.');
-      chrome.runtime.sendMessage({ action: 'execute_error' });
+        throw new Error('No playlist area found.');
     }
 }
