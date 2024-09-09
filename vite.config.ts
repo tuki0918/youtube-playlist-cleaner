@@ -5,5 +5,5 @@ import manifest from "./manifest.config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), crx({ manifest })],
+  plugins: [react(), crx({ manifest })],
 });
