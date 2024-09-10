@@ -78,11 +78,19 @@ async function removePlaylistItem(prams: Prams) {
       /** @deprecated */
       const menuItem = menuItems[2] as HTMLElement;
       const text = menuItem.textContent || "";
-      if (text.includes("[後で見る]から削除")) {
-        menuItem.click(); // [後で見る]から削除 menu
+
+      /** @deprecated */
+      const MENU_TEXTS = [
+        "Remove from Watch later", // en
+        "[後で見る]から削除", // ja
+      ];
+
+      const isRemoveFromWatchLater = MENU_TEXTS.some((x) => text.includes(x));
+      if (isRemoveFromWatchLater) {
+        menuItem.click(); // "Remove from Watch later" menu
         await waitForNextExecute(prams);
       } else {
-        throw new Error("No [後で見る]から削除 menu found.");
+        throw new Error(`No "Remove from Watch later" menu found.`);
       }
     } else {
       throw new Error("No menu items found.");
