@@ -134,3 +134,4 @@ dist
 
 # Storybook
 *storybook.log
+storybook-static/
