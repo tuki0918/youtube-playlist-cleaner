@@ -31,6 +31,7 @@ function isDisplayNone(element: Element) {
 }
 
 async function waitForNextExecute(prams: Prams) {
+  /** @deprecated */
   const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
   const container = document.querySelector(dropdownContainerXPath);
   if (container) {
@@ -49,13 +50,16 @@ async function waitForNextExecute(prams: Prams) {
 }
 
 async function removePlaylistItem(prams: Prams) {
+  /** @deprecated */
   const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
   const container = document.querySelector(dropdownContainerXPath);
   const isDisplay = container && !isDisplayNone(container);
 
+  /** @deprecated */
   const dropdownMenuXPath = "div#contentWrapper.tp-yt-iron-dropdown ytd-menu-popup-renderer.ytd-popup-container";
   const menu = document.querySelector(dropdownMenuXPath);
   if (isDisplay && menu) {
+    /** @deprecated */
     const menuItemXPath = "ytd-menu-service-item-renderer.ytd-menu-popup-renderer";
     const menuItems = menu.querySelectorAll(menuItemXPath);
 
@@ -71,6 +75,7 @@ async function removePlaylistItem(prams: Prams) {
      */
 
     if (menuItems.length > 2) {
+      /** @deprecated */
       const menuItem = menuItems[2] as HTMLElement;
       const text = menuItem.textContent || "";
       if (text.includes("[後で見る]から削除")) {
