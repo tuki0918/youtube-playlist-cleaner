@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [
     react(),
     crx({ manifest }),
-    // as PluginOption is a workaround for a bug in the tailwindcss plugin
+    // TODO: as PluginOption is a workaround for a bug in the tailwindcss plugin
     tailwindcss() as unknown as PluginOption,
   ],
 });
