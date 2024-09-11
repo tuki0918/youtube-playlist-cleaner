@@ -57,6 +57,13 @@ async function waitForNextExecute(prams: Prams) {
 
 async function removePlaylistItem(prams: Prams) {
   /** @deprecated */
+  const playlistNameXPath =
+    "div.metadata-wrapper.ytd-playlist-header-renderer > yt-dynamic-sizing-formatted-string.ytd-playlist-header-renderer div#container yt-formatted-string#text";
+  const playlistName = document.querySelector(playlistNameXPath);
+  if (!playlistName) throw new HTMLParseError("No playlist name found.");
+  const playlistNameText = playlistName.textContent || "";
+
+  /** @deprecated */
   const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
   const container = document.querySelector(dropdownContainerXPath);
   const isDisplay = container && !isDisplayNone(container);
@@ -90,10 +97,17 @@ async function removePlaylistItem(prams: Prams) {
    * --------------------
    */
 
+  /**
+   * PLAYLIST DROPDOWN MENU CASE: default (lang:ja)
+   * --------------------
+   * N. [${playlistNameText}]から削除
+   * --------------------
+   */
+
   /** @deprecated */
   const MENU_TEXTS = [
-    "Remove from Watch later", // en
-    "[後で見る]から削除", // ja
+    `Remove from ${playlistNameText}`, // en
+    `[${playlistNameText}]から削除`, // ja
   ];
   const menuItem = findElementFromTexts(menuItems, MENU_TEXTS);
   if (!menuItem) throw new HTMLParseError("No menu found");
