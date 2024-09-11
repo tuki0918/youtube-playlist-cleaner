@@ -2,6 +2,8 @@ type Prams = {
   tabId: number;
 };
 
+class HTMLParseError extends Error {}
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 chrome.runtime.onMessage.addListener(async (request) => {
@@ -45,7 +47,7 @@ async function waitForNextExecute(prams: Prams) {
       await waitForNextExecute(prams);
     }
   } else {
-    throw new Error("Not supported.");
+    throw new HTMLParseError("Not supported.");
   }
 }
 
@@ -90,13 +92,13 @@ async function removePlaylistItem(prams: Prams) {
         menuItem.click(); // "Remove from Watch later" menu
         await waitForNextExecute(prams);
       } else {
-        throw new Error(`No "Remove from Watch later" menu found.`);
+        throw new HTMLParseError("No menu found");
       }
     } else {
-      throw new Error("No menu items found.");
+      throw new HTMLParseError("No menu items found.");
     }
   } else {
-    throw new Error("No dropdown menu found.");
+    throw new HTMLParseError("No dropdown menu found.");
   }
 }
 
@@ -114,6 +116,6 @@ async function showPlaylistItemMenu(prams: Prams) {
       console.log("No playlist items found.");
     }
   } else {
-    throw new Error("No playlist area found.");
+    throw new HTMLParseError("No playlist area found.");
   }
 }
