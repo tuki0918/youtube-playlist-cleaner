@@ -32,6 +32,12 @@ function isDisplayNone(element: Element) {
   return window.getComputedStyle(element).display === "none";
 }
 
+const findElementFromTexts = (elements: NodeListOf<Element>, texts: string[]) => {
+  return Array.from(elements).find((elm) => texts.some((text) => elm.textContent?.includes(text))) as
+    | HTMLElement
+    | undefined;
+};
+
 async function waitForNextExecute(prams: Prams) {
   /** @deprecated */
   const dropdownContainerXPath = "ytd-popup-container.ytd-app tp-yt-iron-dropdown.ytd-popup-container";
@@ -66,7 +72,7 @@ async function removePlaylistItem(prams: Prams) {
     const menuItems = menu.querySelectorAll(menuItemXPath);
 
     /**
-     * DROPDOWN MENU (lang:ja)
+     * WATCH LATER DROPDOWN MENU CASE: default (lang:ja)
      * --------------------
      * 0. キューに追加
      * 1. 再生リストに保存
@@ -76,20 +82,22 @@ async function removePlaylistItem(prams: Prams) {
      * --------------------
      */
 
-    if (menuItems.length > 2) {
-      /** @deprecated */
-      const menuItem = menuItems[2] as HTMLElement;
-      const text = menuItem.textContent || "";
+    /**
+     * WATCH LATER DROPDOWN MENU CASE: unavailable (lang:ja)
+     * --------------------
+     * 0. [後で見る]から削除
+     * --------------------
+     */
 
+    if (menuItems.length > 0) {
       /** @deprecated */
       const MENU_TEXTS = [
         "Remove from Watch later", // en
         "[後で見る]から削除", // ja
       ];
-
-      const isRemoveFromWatchLater = MENU_TEXTS.some((x) => text.includes(x));
-      if (isRemoveFromWatchLater) {
-        menuItem.click(); // "Remove from Watch later" menu
+      const menuItem = findElementFromTexts(menuItems, MENU_TEXTS);
+      if (menuItem) {
+        menuItem.click();
         await waitForNextExecute(prams);
       } else {
         throw new HTMLParseError("No menu found");
