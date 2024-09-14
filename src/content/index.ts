@@ -116,10 +116,12 @@ async function removePlaylistItem(prams: Prams) {
 }
 
 async function showPlaylistItemMenu(prams: Prams) {
+  /** @deprecated */
   const playlistWrapSectionXPath = "div#contents.ytd-item-section-renderer";
   const section = document.querySelector(playlistWrapSectionXPath);
   if (!section) throw new HTMLParseError("No playlist area found.");
 
+  /** @deprecated */
   const playlistMenuXPath = "yt-icon-button#button.dropdown-trigger.ytd-menu-renderer";
   const menu = section.querySelector(playlistMenuXPath) as HTMLElement;
   if (menu) {
